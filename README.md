@@ -91,16 +91,21 @@ HTTP contract: `GET /api/stream` (SSE fan-out) and `POST /api/send`. Depends onl
 - **Interface Segregation** — `ChatState` and `MessageGateway` are minimal, focused contracts
 
 ---
-
 ## Assumptions & trade-offs
 
-- Single Telegram participant — first `/start` wins, others are silently ignored
+- Single Telegram participant — first `/start` wins, others are silently ignored, /stop disconnects it and allows the same or a new client
 - Session-only — no message persistence; restart clears state
-- SSE over WebSocket — simpler for unidirectional server push; `POST /send` handles the other direction
-- Polling over webhook — no public URL required for local dev
+- SSE over WebSocket:
+  - simpler for unidirectional server push
+  - `POST /send` handles the other direction
+  - easier to test
+  - Because "the chat may not be consistent" as per requirements, no need to create a websocket and handle states and reconnection of the same  client 
+  - Polling telegram bot: the alternative for polling is to use webhook from telegram. this is more robust and scaleable but will require configuring the server in a non-local environment, routing, firawalls etc..  
+    polling keeps a connection open but since we support only a single connection to a telegram client it is fine
+  - When multiple frontend clients are connected, they all receive the message from telegram and message from a single 
 
 ## Known Issues
 - unknown commands (e.g., /foo) fall through to handle_message, which will broadcast them as a regular text message.
 - Only text is supported: images/stickers for example will not be forwarded to the client
-- Message Idempotency: The backend payload does not include message IDs. The frontend relies on client-side generation (crypto.randomUUID()) for React keys. As a result, network-level duplicate SSE events cannot be deduplicated by the client. fine for that scale.
-
+- Message Idempotency: The backend payload does not include message IDs. The frontend relies on client-side generation (crypto.randomUUID()) for React keys. As a result, network-level duplicate SSE events cannot be   deduplicated by the client. fine for that scale.
+- Frontend green dot only lights when /start and not when a message is sent on the first time
