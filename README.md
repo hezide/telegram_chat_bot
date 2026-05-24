@@ -100,9 +100,9 @@ HTTP contract: `GET /api/stream` (SSE fan-out) and `POST /api/send`. Depends onl
   - `POST /send` handles the other direction
   - easier to test
   - Because "the chat may not be consistent" as per requirements, no need to create a websocket and handle states and reconnection of the same  client 
-  - Polling telegram bot: the alternative for polling is to use webhook from telegram. this is more robust and scaleable but will require configuring the server in a non-local environment, routing, firawalls etc..  
-    polling keeps a connection open but since we support only a single connection to a telegram client it is fine
-  - When multiple frontend clients are connected, they all receive the message from telegram and message from a single 
+- Polling telegram bot: the alternative for polling is to use webhook from telegram. this is more robust and scaleable but will require configuring the server in a non-local environment, routing, firawalls etc..  
+  polling keeps a connection open but since we support only a single connection to a telegram client it is fine
+- When multiple frontend clients are connected, they all receive the message from telegram and message from a single 
 
 ## Known Issues
 - unknown commands (e.g., /foo) fall through to handle_message, which will broadcast them as a regular text message.
